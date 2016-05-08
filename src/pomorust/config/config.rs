@@ -1,19 +1,19 @@
-extern crate uuid;
 use std::fs::File;
 use std::io::Read;
 use std::string::ToString;
 use pomorust::model::tasks::Task;
-use self::uuid::Uuid;
+use std::option;
+use uuid;
 
-pub fn read_task_file() -> Vec<Task> {
+pub fn read_task_file() -> Option<Vec<Task>> {
     let mut file = match File::open("tasks") {
         Ok(file) => file,
-        Err(_) => panic!("No task file !"),
+        Err(_) => return None
     };
     let mut file_txt = String::new();
     match file.read_to_string(&mut file_txt) {
         Ok(_) => {},
-        Err(_) => panic!("Empty task file !"),
+        Err(_) => return None
     };
     let mut data: Vec<Task> = Vec::new();
     for l in file_txt.split("\n").collect::<Vec<&str>>() {
@@ -21,7 +21,7 @@ pub fn read_task_file() -> Vec<Task> {
             data.push(read_task_line(l));
         }
     }
-    data
+    Some(data)
 }
 
 fn read_task_line(line: &str) -> Task {
