@@ -51,13 +51,13 @@ pub fn parse() {
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("Pomodoro utility");
-            ap.refer(&mut subcommand).required()
-                .add_argument("command", Store,
-                              r#"Command to run ("start", "new", "list")#);
-            ap.refer(&mut args).
+        ap.refer(&mut subcommand).required()
+            .add_argument("command", Store,
+                          r#"Command to run ("start", "new", "list")"#);
+        ap.refer(&mut args).
             add_argument("arguments", List, r#"Arguments for command"#);
-            ap.stop_on_first_argument(true);
-            ap.parse_args_or_exit();
+        ap.stop_on_first_argument(true);
+        ap.parse_args_or_exit();
     }
     args.insert(0, format!("subcommand {:?}", subcommand));
     match subcommand {
