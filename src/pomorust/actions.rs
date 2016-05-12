@@ -7,9 +7,9 @@ use pomorust::model::tasks::Task;
 
 
 #[derive(Debug)]
-enum Command {
-    TaskStart,
-    TaskNew,
+pub enum Command {
+    TaskStart(Option<Task>),
+    TaskNew(Option<Task>),
     TaskList
 }
 
@@ -17,15 +17,15 @@ impl FromStr for Command {
     type Err = ();
     fn from_str(src: &str) -> Result<Command, ()> {
         return match src {
-            "start" => Ok(Command::TaskStart),
-            "new" => Ok(Command::TaskNew),
+            "start" => Ok(Command::TaskStart(None)),
+            "new" => Ok(Command::TaskNew(None)),
             "list" => Ok(Command::TaskList),
             _ => Err(())
         }
     }
 }
 
-fn start_task(args: Vec<String>) {
+fn start_task(args: Vec<String>) -> Command {
     let mut uuid = "".to_string();
     let mut ap = ArgumentParser::new();
     ap.set_description("Starts a task");
@@ -38,9 +38,10 @@ fn start_task(args: Vec<String>) {
             process::exit(x);
         }
     }
+    Command::TaskStart(None)
 }
 
-fn new_task(args: Vec<String>) {
+fn new_task(args: Vec<String>) -> Command {
     let mut description = "".to_string();
     let mut pomodori_estimate = 0;
     {
@@ -58,14 +59,16 @@ fn new_task(args: Vec<String>) {
         }
     }
     let t = Task::new(&description, pomodori_estimate);
-    println!("New task : {}", t.to_string());
+    Command::TaskNew(Some(t))
 }
 
-fn list_task(args: Vec<String>) {
+fn list_task(args: Vec<String>) -> Command {
+    // We might want to add some filtering options here one day
+    Command::TaskList
 }
 
-pub fn parse() {
-    let mut subcommand = Command::TaskStart;
+pub fn parse() -> Command {
+    let mut subcommand = Command::TaskList;
     let mut args = vec!();
     {
         let mut ap = ArgumentParser::new();
@@ -80,8 +83,8 @@ pub fn parse() {
     }
     args.insert(0, format!("subcommand {:?}", subcommand));
     match subcommand {
-        Command::TaskStart => start_task(args),
-        Command::TaskNew => new_task(args),
+        Command::TaskStart(_) => start_task(args),
+        Command::TaskNew(_) => new_task(args),
         Command::TaskList => list_task(args),
     }
 }

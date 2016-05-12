@@ -6,8 +6,24 @@ pub mod pomorust;
 
 use pomorust::config::config;
 use pomorust::actions;
+use pomorust::model::context::Context;
+use pomorust::model::tasks::Task;
+
 
 fn main() {
-    let task_file = config::create_context();
-    actions::parse();
+    let context = config::create_context();
+    match actions::parse() {
+        actions::Command::TaskNew(Some(t)) => { add_task(context, t); },
+        actions::Command::TaskList => { list_task(context); },
+        actions::Command::TaskStart(Some(t)) => { start_task(context, t); }
+        _ => panic!("Invalid command")
+    }
 }
+
+fn add_task(context: Context,  task: Task) {
+    println!("New task : {}", task.to_string());
+}
+
+fn list_task(context: Context) {}
+
+fn start_task(context: Context, task: Task) {}

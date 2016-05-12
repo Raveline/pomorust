@@ -2,6 +2,7 @@ extern crate uuid;
 use self::uuid::Uuid;
 use std::thread;
 
+#[derive(Debug)]
 pub struct Task {
     description:        String,
     uuid:               Uuid,
