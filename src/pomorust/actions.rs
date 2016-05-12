@@ -58,6 +58,7 @@ fn new_task(args: Vec<String>) {
         }
     }
     let t = Task::new(&description, pomodori_estimate);
+    println!("New task : {}", t.to_string());
 }
 
 fn list_task(args: Vec<String>) {
