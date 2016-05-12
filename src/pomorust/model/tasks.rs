@@ -38,6 +38,28 @@ impl Task {
     fn increment_pomodoro(&mut self) {
         self.pomodori_count += 1;
     }
+
+    pub fn to_csv(&self) -> String {
+        format!("{};{};{};{};{}\n", self.description, self.uuid,
+                self.pomodori_count, self.pomodori_estimate,
+                self.comment)
+    }
+
+    pub fn from_csv(line: &str) -> Task {
+        let task_elements = line.split(";").collect::<Vec<&str>>();
+        let desc = task_elements[0];
+        let uuid : uuid::Uuid = uuid::Uuid::parse_str(task_elements[1])
+            .ok()
+            .expect("Error in the task file : uuid not parsable.");
+        let pomodori_count: u16 = task_elements[2].parse()
+            .ok()
+            .expect("Error in the task file : pomodori count not parsable.");
+        let pomodori_estimate: u16 = task_elements[3].parse()
+            .ok()
+            .expect("Error in the task file : pomodori count not parsable");
+        let comment = task_elements[4];
+        Task::new_preset(desc, uuid, pomodori_count, pomodori_estimate, comment)
+    }
 }
 
 impl ToString for Task {
