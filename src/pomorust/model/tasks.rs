@@ -3,7 +3,7 @@ use self::uuid::Uuid;
 use std::thread;
 
 pub struct Task {
-    desc:               String,
+    description:        String,
     uuid:               Uuid,
     pomodori_count:     u16,
     pomodori_estimate:  u16,
@@ -11,20 +11,16 @@ pub struct Task {
 }
 
 impl Task {
-    pub fn new(desc: &str) -> Task {
+    pub fn new(desc: &str, estimate: u16) -> Task {
         Task::new_preset(desc, Uuid::new_v4(), 0, 0, "")
     }
 
-    pub fn new_estimate(desc: &str, estimate: u16) -> Task {
-        Task::new_preset(desc, Uuid::new_v4(), 0, estimate, "")
-    }
-
-    pub fn new_preset(desc: &str, uuid: Uuid,
+    pub fn new_preset(description: &str, uuid: Uuid,
            pomodori_count: u16, 
            pomodori_estimate: u16,
            comment: &str) -> Task {
         Task {
-            desc: desc.to_string(),
+            description: description.to_string(),
             uuid: uuid,
             pomodori_count: pomodori_count,
             pomodori_estimate: pomodori_estimate,
@@ -46,7 +42,8 @@ impl Task {
 
 impl ToString for Task {
     fn to_string(&self) -> String {
-        self.desc.to_string()
+        format!("{}\t{}\t{} / {}", self.uuid, self.description,
+                self.pomodori_count, self.pomodori_estimate)
     }
 }
 
