@@ -20,8 +20,10 @@ fn main() {
     }
 }
 
-fn add_task(context: Context,  task: Task) {
+fn add_task(mut context: Context,  task: Task) {
     println!("New task : {}", task.to_string());
+    context.add_task(task);
+    config::write_task_file(context.tasks)
 }
 
 fn list_task(context: Context) {}

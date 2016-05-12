@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Read;
+use std::io::Write;
 use std::string::ToString;
 use pomorust::model::tasks::Task;
 use pomorust::model::context::Context;
@@ -33,10 +34,14 @@ pub fn read_task_file() -> Option<Vec<Task>> {
     Some(data)
 }
 
-fn write_task_file(tasks: Vec<Task>, file: File) {
+pub fn write_task_file(tasks: Vec<Task>) {
     let tasks_as_strings = tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
     let mut file = match File::create("tasks") {
         Ok(file) => file,
         Err(_) => panic!("Could not create tasks file.")
     };
+    for s in tasks_as_strings {
+        file.write(&s.into_bytes());
+    }
+    file.sync_all();
 }
