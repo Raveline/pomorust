@@ -18,24 +18,16 @@ pub fn read_task_file() -> Option<Vec<Task>> {
     let mut data: Vec<Task> = Vec::new();
     for l in file_txt.split("\n").collect::<Vec<&str>>() {
         if l.len() > 0 {
-            data.push(read_task_line(l));
+            data.push(Task::from_csv(l));
         }
     }
     Some(data)
 }
 
-fn read_task_line(line: &str) -> Task {
-    let task_elements = line.split(";").collect::<Vec<&str>>();
-    let desc = task_elements[0];
-    let uuid : uuid::Uuid = uuid::Uuid::parse_str(task_elements[1])
-        .ok()
-        .expect("Error in the task file : uuid not parsable.");
-    let pomodori_count: u16 = task_elements[2].parse()
-        .ok()
-        .expect("Error in the task file : pomodori count not parsable.");
-    let pomodori_estimate: u16 = task_elements[3].parse()
-        .ok()
-        .expect("Error in the task file : pomodori count not parsable");
-    let comment = task_elements[4];
-    Task::new_preset(desc, uuid, pomodori_count, pomodori_estimate, comment)
+fn write_task_file(tasks: Vec<Task>, file: File) {
+    let tasks_as_strings = tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
+    let mut file = match File::create("tasks") {
+        Ok(file) => file,
+        Err(_) => panic!("Could not create tasks file.")
+    };
 }
