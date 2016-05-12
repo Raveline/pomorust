@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::io::{stdout, stderr};
 
 use argparse::{ArgumentParser, StoreTrue, Store, List};
+use pomorust::model::tasks::Task;
 
 
 #[derive(Debug)]
@@ -40,6 +41,23 @@ fn start_task(args: Vec<String>) {
 }
 
 fn new_task(args: Vec<String>) {
+    let mut description = "".to_string();
+    let mut pomodori_estimate = 0;
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Add a new task");
+        ap.refer(&mut description).required().add_argument(
+            "description", Store,
+            r#"Short description of the task"#);
+        ap.refer(&mut pomodori_estimate).add_argument(
+            "estimated_number", Store,
+            r#"Number of pomodori you think this task will take"#);
+        match ap.parse(args, &mut stdout(), &mut stderr()) {
+            Ok(()) => {}
+            Err(x) => {println!("{}", x)}
+        }
+    }
+    let t = Task::new(&description, pomodori_estimate);
 }
 
 fn list_task(args: Vec<String>) {
