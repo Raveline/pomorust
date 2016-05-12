@@ -1,5 +1,5 @@
-use tasks;
+use pomorust::model::tasks;
 
-struct Context {
-    tasks: Vec<Task>
+pub struct Context {
+    pub tasks: Vec<tasks::Task>
 }

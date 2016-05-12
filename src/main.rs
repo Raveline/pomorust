@@ -4,10 +4,10 @@ extern crate argparse;
 
 pub mod pomorust;
 
-use pomorust::config::config::read_task_file;
+use pomorust::config::config;
 use pomorust::actions;
 
 fn main() {
-    let task_file = read_task_file();
+    let task_file = config::create_context();
     actions::parse();
 }

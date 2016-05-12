@@ -2,8 +2,17 @@ use std::fs::File;
 use std::io::Read;
 use std::string::ToString;
 use pomorust::model::tasks::Task;
+use pomorust::model::context::Context;
 use std::option;
 use uuid;
+
+pub fn create_context() -> Context {
+    let task_list = match read_task_file() {
+        Some(ts) => ts,
+        None => Vec::new()
+    };
+    Context { tasks: task_list }
+}
 
 pub fn read_task_file() -> Option<Vec<Task>> {
     let mut file = match File::open("tasks") {
