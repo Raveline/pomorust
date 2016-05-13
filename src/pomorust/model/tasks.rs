@@ -65,7 +65,8 @@ impl Task {
 
 impl ToString for Task {
     fn to_string(&self) -> String {
-        format!("{}\t{}\t{} / {}", self.uuid, self.description,
+        format!("{0: <38} {1:.<80} {2} / {3}",
+                self.uuid.to_string(), self.description,
                 self.pomodori_count, self.pomodori_estimate)
     }
 }
