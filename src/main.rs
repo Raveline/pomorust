@@ -21,11 +21,15 @@ fn main() {
 }
 
 fn add_task(mut context: Context,  task: Task) {
-    println!("New task : {}", task.to_string());
+    println!("New task :\t{}", task.to_string());
     context.add_task(task);
     config::write_task_file(context.tasks)
 }
 
-fn list_task(context: Context) {}
+fn list_task(context: Context) {
+    for t in context.tasks {
+        println!("{}", t.to_string());
+    }
+}
 
 fn start_task(context: Context, task: Task) {}
