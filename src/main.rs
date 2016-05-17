@@ -5,17 +5,17 @@ extern crate argparse;
 pub mod pomorust;
 
 use pomorust::config::config;
-use pomorust::actions;
+use pomorust::actions::{parse, Command};
 use pomorust::model::context::Context;
 use pomorust::model::tasks::Task;
 
 
 fn main() {
     let context = config::create_context();
-    match actions::parse() {
-        actions::Command::TaskNew(Some(t)) => { add_task(context, t); },
-        actions::Command::TaskList => { list_task(context); },
-        actions::Command::TaskStart(Some(t)) => { start_task(context, t); }
+    match parse() {
+        Command::TaskNew(Some(t)) => { add_task(context, t); },
+        Command::TaskList => { list_task(context); },
+        Command::TaskStart(Some(t)) => { start_task(context, t); }
         _ => panic!("Invalid command")
     }
 }
