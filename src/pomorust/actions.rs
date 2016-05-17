@@ -8,8 +8,9 @@ use pomorust::model::tasks::Task;
 
 #[derive(Debug)]
 pub enum Command {
-    TaskStart(Option<Task>),
+    TaskStart(Option<String>),
     TaskNew(Option<Task>),
+    TaskDone(Option<String>),
     TaskList
 }
 
@@ -25,21 +26,6 @@ impl FromStr for Command {
     }
 }
 
-fn start_task(args: Vec<String>) -> Command {
-    let mut uuid = "".to_string();
-    let mut ap = ArgumentParser::new();
-    ap.set_description("Starts a task");
-    ap.refer(&mut uuid).required().add_argument(
-        "Task identifier", Store,
-        r#"Uuid or part of the UUID to identify the task"#);
-    match ap.parse(args, &mut stdout(), &mut stderr()) {
-        Ok(()) => {},
-        Err(x) => {
-            process::exit(x);
-        }
-    }
-    Command::TaskStart(None)
-}
 
 fn new_task(args: Vec<String>) -> Command {
     let mut description = "".to_string();
@@ -60,6 +46,22 @@ fn new_task(args: Vec<String>) -> Command {
     }
     let t = Task::new(&description, pomodori_estimate);
     Command::TaskNew(Some(t))
+}
+
+fn identify(args: Vec<String>) -> Option<String> {
+    let mut uuid_begin = "".to_string();
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Acts upon an identified command");
+        ap.refer(&mut uuid_begin).required().add_argument(
+            "identifier", Store,
+            r#"Beginning of the UUID of the task"#);
+        match ap.parse(args, &mut stdout(), &mut stderr()) {
+            Ok(()) => {}
+            Err(x) => {println!("{}", x)}
+        }
+    }
+    Some(uuid_begin)
 }
 
 fn list_task(args: Vec<String>) -> Command {
@@ -83,8 +85,9 @@ pub fn parse() -> Command {
     }
     args.insert(0, format!("subcommand {:?}", subcommand));
     match subcommand {
-        Command::TaskStart(_) => start_task(args),
+        Command::TaskStart(_) => Command::TaskStart(identify(args)),
         Command::TaskNew(_) => new_task(args),
+        Command::TaskDone(_) => Command::TaskDone(identify(args)),
         Command::TaskList => list_task(args),
     }
 }
