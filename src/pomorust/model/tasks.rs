@@ -5,7 +5,7 @@ use std::thread;
 #[derive(Debug)]
 pub struct Task {
     description:        String,
-    uuid:               Uuid,
+    pub uuid:           Uuid,
     pomodori_count:     u16,
     pomodori_estimate:  u16,
     comment:            String
