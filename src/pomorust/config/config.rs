@@ -34,7 +34,7 @@ pub fn read_task_file() -> Option<Vec<Task>> {
     Some(data)
 }
 
-pub fn write_task_file(tasks: Vec<Task>) {
+pub fn write_task_file(tasks: &Vec<Task>) {
     let tasks_as_strings = tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
     let mut file = match File::create("tasks") {
         Ok(file) => file,
