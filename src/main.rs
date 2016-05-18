@@ -11,11 +11,11 @@ use pomorust::model::tasks::Task;
 
 
 fn main() {
-    let context = config::create_context();
+    let mut context = config::create_context();
     match parse() {
         Command::TaskNew(Some(t)) => { add_task(context, t); },
         Command::TaskList => { list_task(context); },
-        Command::TaskStart(Some(t)) => { start_task(context, t); }
+        Command::TaskStart(Some(t)) => { start_task(&mut context, t); }
         _ => panic!("Invalid command")
     }
 }
@@ -32,4 +32,32 @@ fn list_task(context: Context) {
     }
 }
 
-fn start_task(context: Context, task: Task) {}
+fn start_task(context: &mut Context, identifier: String) {
+    let started_task = match identify_task(&mut context.tasks, identifier) {
+        MatchingResult::NoMatch => panic!("No such task !"),
+        MatchingResult::AmbiguousMatch => panic!("Too many possible tasks !"),
+        MatchingResult::OneMatch(t) => t
+    };
+    println!("Starting task : {}", started_task.to_string());
+    started_task.start();
+    println!("Done one pomodoro on : {}", started_task.to_string());
+}
+
+enum MatchingResult<'a> {
+    NoMatch,
+    OneMatch(&'a mut Task),
+    AmbiguousMatch
+}
+
+fn identify_task<'a>(tasks : &'a mut Vec<Task>, identifier: String) -> MatchingResult<'a> {
+    let mut matching = tasks
+        .iter_mut()
+        .filter(|x| x.can_be_identified_by(&identifier));
+    match matching.next() {
+        None => MatchingResult::NoMatch,
+        Some(n) => match matching.next() {
+            None => MatchingResult::OneMatch(n),
+            Some(_) => MatchingResult::AmbiguousMatch
+        }
+    }
+}

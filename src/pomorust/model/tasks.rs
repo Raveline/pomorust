@@ -29,15 +29,17 @@ impl Task {
         }
     }
 
-    fn start(&mut self) {
-        println!("Started working on : {}", self.to_string());
+    pub fn start(&mut self) {
         wait_for(25);
         self.increment_pomodoro();
-        println!("Done working on : {}", self.to_string());
     }
 
     fn increment_pomodoro(&mut self) {
         self.pomodori_count += 1;
+    }
+
+    pub fn can_be_identified_by(&self, identifier: &str) -> bool {
+        self.uuid.to_string().starts_with(identifier)
     }
 
     pub fn to_csv(&self) -> String {

@@ -1,11 +1,11 @@
-use pomorust::model::tasks;
+use pomorust::model::tasks::Task;
 
 pub struct Context {
-    pub tasks: Vec<tasks::Task>
+    pub tasks: Vec<Task>
 }
 
 impl Context {
-    pub fn add_task(&mut self, task: tasks::Task) {
+    pub fn add_task(&mut self, task: Task) {
         self.tasks.push(task);
     }
 }
