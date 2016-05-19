@@ -7,3 +7,4 @@ authors = ["Adrien Duclos <adrien.duclos@milibris.com>"]
 uuid="0.1"
 argparse = "*"
 notify-rust = "*"
+rust-ini = "*"

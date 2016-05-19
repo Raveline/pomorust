@@ -3,6 +3,7 @@
 extern crate uuid;
 extern crate argparse;
 extern crate notify_rust;
+extern crate ini;
 
 pub mod pomorust;
 
@@ -63,7 +64,9 @@ fn start_task(context: &mut Context, identifier: String) {
         println!("Starting task : {}", started_task.to_string());
         started_task.start();
     }
-    utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+    if context.use_notification {
+        utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+    }
     config::write_task_file(&context.tasks).unwrap();
 }
 
