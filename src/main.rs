@@ -1,4 +1,4 @@
-#![feature(process_session_leader)]
+#![feature(process_exec)]
 #![feature(type_ascription)]
 extern crate uuid;
 extern crate argparse;
@@ -44,7 +44,7 @@ fn main() {
 fn add_task(context: &mut Context,  task: Task) {
     println!("New task :\t{}", task.to_string());
     context.add_task(task);
-    config::write_task_file(&context.tasks)
+    config::write_task_file(&context.tasks).unwrap();
 }
 
 fn list_task(context: Context) {
@@ -63,9 +63,8 @@ fn start_task(context: &mut Context, identifier: String) {
         println!("Starting task : {}", started_task.to_string());
         started_task.start();
     }
-    /*utils::notify("Pomodoro done !", 
-           format!("Pomodoro done. Take a 5 minutes break !"));*/
-    config::write_task_file(&context.tasks);
+    utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+    config::write_task_file(&context.tasks).unwrap();
 }
 
 enum MatchingResult<'a> {

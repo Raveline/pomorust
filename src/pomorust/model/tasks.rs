@@ -13,7 +13,7 @@ pub struct Task {
 
 impl Task {
     pub fn new(desc: &str, estimate: u16) -> Task {
-        Task::new_preset(desc, Uuid::new_v4(), 0, 0, "")
+        Task::new_preset(desc, Uuid::new_v4(), 0, estimate, "")
     }
 
     pub fn new_preset(description: &str, uuid: Uuid,

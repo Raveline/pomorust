@@ -1,8 +1,7 @@
-use std::process;
 use std::str::FromStr;
 use std::io::{stdout, stderr};
 
-use argparse::{ArgumentParser, StoreTrue, Store, List};
+use argparse::{ArgumentParser, Store, List};
 use pomorust::model::tasks::Task;
 
 
@@ -64,8 +63,9 @@ fn identify(args: Vec<String>) -> Option<String> {
     Some(uuid_begin)
 }
 
+// We might want to add some filtering options here one day
+#[allow(unused_variables)]
 fn list_task(args: Vec<String>) -> Command {
-    // We might want to add some filtering options here one day
     Command::TaskList
 }
 

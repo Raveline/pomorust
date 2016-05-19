@@ -1,11 +1,12 @@
 use std::env;
 use std::thread;
+use std::time::Duration;
 use std::process;
 use std::os::unix::process::CommandExt;
 use notify_rust::Notification;
 
-pub fn wait_for(minutes: u32) {
-    thread::sleep_ms(minutes * 60 * 1000);
+pub fn wait_for(minutes: u64) {
+    thread::sleep(Duration::new(minutes * 60, 0));
 }
 
 pub fn notify(title: &str, text: &str) {
@@ -20,8 +21,9 @@ pub fn notify(title: &str, text: &str) {
 /// Rust process library is relatively unstable at this point,
 /// so we want to encapsulate this.
 pub fn run_background_process(task_id: String) {
-	let child = process::Command::new(env::args().nth(0).expect("Should not happen"))
+	process::Command::new(env::args().nth(0).expect("Should not happen"))
 		.arg("new_pomodoro")
         .arg(task_id)
-		.session_leader(true).spawn().unwrap();
+        .before_exec(|| { Ok(()) }).spawn().unwrap();
+		//.session_leader(true).spawn().unwrap();
 }
