@@ -4,6 +4,7 @@ use std::time::Duration;
 use std::process;
 use std::os::unix::process::CommandExt;
 use notify_rust::Notification;
+use notify_rust::NotificationHint as Hint;
 
 pub fn wait_for(minutes: u64) {
     thread::sleep(Duration::new(minutes * 60, 0));
@@ -12,6 +13,7 @@ pub fn wait_for(minutes: u64) {
 pub fn notify(title: &str, text: &str) {
     Notification::new().summary(title)
         .body(text)
+        .hint(Hint::SuppressSound(true))
         .show().unwrap();
 }
 
