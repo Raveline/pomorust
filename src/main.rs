@@ -1,6 +1,7 @@
 #![feature(type_ascription)]
 extern crate uuid;
 extern crate argparse;
+extern crate notify_rust;
 
 pub mod pomorust;
 
@@ -8,6 +9,7 @@ use pomorust::config::config;
 use pomorust::actions::{parse, Command};
 use pomorust::model::context::Context;
 use pomorust::model::tasks::Task;
+use notify_rust::Notification;
 
 
 fn main() {
@@ -41,7 +43,9 @@ fn start_task(context: &mut Context, identifier: String) {
         };
         println!("Starting task : {}", started_task.to_string());
         started_task.start();
-        println!("Done one pomodoro on : {}", started_task.to_string());
+        Notification::new().summary("Pomodoro done !")
+            .body("Pomodoro on {} is done. Take a 5 minutes break !")
+            .show().unwrap();
     }
     config::write_task_file(&context.tasks)
 }

@@ -6,3 +6,4 @@ authors = ["Adrien Duclos <adrien.duclos@milibris.com>"]
 [dependencies]
 uuid="0.1"
 argparse = "*"
+notify-rust = "*"
