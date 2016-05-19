@@ -1,6 +1,6 @@
 extern crate uuid;
 use self::uuid::Uuid;
-use std::thread;
+use pomorust::utils::wait_for;
 
 #[derive(Debug)]
 pub struct Task {
@@ -71,8 +71,4 @@ impl ToString for Task {
                 self.uuid.to_string(), self.description,
                 self.pomodori_count, self.pomodori_estimate)
     }
-}
-
-fn wait_for(minutes: u32) {
-    thread::sleep_ms(minutes * 60 * 1000);
 }

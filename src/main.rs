@@ -1,3 +1,4 @@
+#![feature(process_session_leader)]
 #![feature(type_ascription)]
 extern crate uuid;
 extern crate argparse;
@@ -5,20 +6,38 @@ extern crate notify_rust;
 
 pub mod pomorust;
 
+use std::env;
+
 use pomorust::config::config;
 use pomorust::actions::{parse, Command};
 use pomorust::model::context::Context;
 use pomorust::model::tasks::Task;
-use notify_rust::Notification;
+use pomorust::utils;
 
+fn check_if_background_proc() -> bool {
+    match env::args().nth(1) {
+        Some(s) => { 
+            if s == "new_pomodoro" {
+                return true
+            }
+        },
+        _ => ()
+    }
+    return false
+}
 
 fn main() {
     let mut context = config::create_context();
-    match parse() {
-        Command::TaskNew(Some(t)) => { add_task(&mut context, t); },
-        Command::TaskList => { list_task(context); },
-        Command::TaskStart(Some(t)) => { start_task(&mut context, t); }
-        _ => panic!("Invalid command")
+    if check_if_background_proc() {
+        start_task(&mut context, env::args().nth(2).expect("Invalid background call"))
+    }
+    else {
+        match parse() {
+            Command::TaskNew(Some(t)) => { add_task(&mut context, t); },
+            Command::TaskList => { list_task(context); },
+            Command::TaskStart(Some(t)) => { utils::run_background_process(t); }
+            _ => panic!("Invalid command")
+        }
     }
 }
 
@@ -43,11 +62,10 @@ fn start_task(context: &mut Context, identifier: String) {
         };
         println!("Starting task : {}", started_task.to_string());
         started_task.start();
-        Notification::new().summary("Pomodoro done !")
-            .body("Pomodoro on {} is done. Take a 5 minutes break !")
-            .show().unwrap();
     }
-    config::write_task_file(&context.tasks)
+    /*utils::notify("Pomodoro done !", 
+           format!("Pomodoro done. Take a 5 minutes break !"));*/
+    config::write_task_file(&context.tasks);
 }
 
 enum MatchingResult<'a> {
