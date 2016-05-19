@@ -4,7 +4,7 @@ use pomorust::utils::wait_for;
 
 #[derive(Debug)]
 pub struct Task {
-    description:        String,
+    pub description:        String,
     pub uuid:           Uuid,
     pomodori_count:     u16,
     pomodori_estimate:  u16,

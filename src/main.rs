@@ -28,6 +28,7 @@ fn check_if_background_proc() -> bool {
 }
 
 fn main() {
+    utils::notify("Test", "Test", true);
     let mut context = config::create_context();
     if check_if_background_proc() {
         start_task(&mut context, env::args().nth(2).expect("Invalid background call"))
@@ -63,9 +64,12 @@ fn start_task(context: &mut Context, identifier: String) {
         };
         println!("Starting task : {}", started_task.to_string());
         started_task.start();
-    }
-    if context.use_notification {
-        utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+
+        if context.use_notification {
+            utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+        } else {
+            println!("Done working on {}", started_task.description);
+        }
     }
     config::write_task_file(&context.tasks).unwrap();
 }
