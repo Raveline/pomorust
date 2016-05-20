@@ -4,6 +4,7 @@ extern crate uuid;
 extern crate argparse;
 extern crate notify_rust;
 extern crate ini;
+extern crate rodio;
 
 pub mod pomorust;
 
@@ -28,7 +29,6 @@ fn check_if_background_proc() -> bool {
 }
 
 fn main() {
-    utils::notify("Test", "Test", true);
     let mut context = config::create_context();
     if check_if_background_proc() {
         start_task(&mut context, env::args().nth(2).expect("Invalid background call"))
@@ -69,6 +69,9 @@ fn start_task(context: &mut Context, identifier: String) {
             utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
         } else {
             println!("Done working on {}", started_task.description);
+        }
+        if context.use_sound {
+            utils::ding();
         }
     }
     config::write_task_file(&context.tasks).unwrap();
