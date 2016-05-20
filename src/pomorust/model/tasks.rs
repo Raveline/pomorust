@@ -63,8 +63,8 @@ impl Task {
     }
 
     pub fn to_csv(&self) -> String {
-        let start_date_string = self.start_date.map_or(String::new(), |x| x.to_string());
-        let end_date_string = self.end_date.map_or(String::new(), |x| x.to_string());
+        let start_date_string = self.start_date.map_or(String::new(), |x|x.to_rfc3339());
+        let end_date_string = self.end_date.map_or(String::new(), |x| x.to_rfc3339());
         format!("{};{};{};{};{};{};{};{}\n", self.description, self.uuid,
                 self.pomodori_count, self.pomodori_estimate,
                 self.comment, self.is_ongoing,
@@ -89,15 +89,15 @@ impl Task {
         let is_ongoing : bool = task_elements[5] == "true";
         let start_date : MaybeLocalDate = match task_elements[6].len() {
             0 => None,
-            _ => Some(task_elements[6].
-                parse().
-                expect("Error in the task file : start date not parsable."))
+            _ => Some(task_elements[6].parse::<chrono::DateTime<chrono::Local>>()
+                .ok()
+                .expect("Error in the task file : start date not parsable."))
         };
         let end_date : MaybeLocalDate = match task_elements[7].len() {
             0 => None,
-            _ => Some(task_elements[7].
-                parse().
-                expect("Error in the task file : start date not parsable."))
+            _ => Some(task_elements[7].parse::<chrono::DateTime<chrono::Local>>()
+                .ok()
+                .expect("Error in the task file : start date not parsable."))
         };
         Task {
             description: desc.to_string(),
