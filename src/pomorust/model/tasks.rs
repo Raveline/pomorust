@@ -15,7 +15,7 @@ pub struct Task {
     /// Number of pomodori needed according to user
     pomodori_estimate: u16,
     /// Is the user currently doing a pomodoro over this task ?
-    is_ongoing: bool,
+    pub is_ongoing: bool,
     /// Comment
     comment: String,
     /// When (and if) this task was started for the first time
