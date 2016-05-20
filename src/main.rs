@@ -11,6 +11,7 @@ extern crate rodio;
 pub mod pomorust;
 
 use std::env;
+use std::process;
 
 use pomorust::config::config;
 use pomorust::actions::{parse, Command};
@@ -58,6 +59,10 @@ fn list_task(context: Context) {
 }
 
 fn start_task(context: &mut Context, identifier: String) {
+    if context.has_ongoing_task() {
+        println!("You are already doing a task ! Mark it as done if you're over before starting a new one.");
+        process::exit(0);
+    }
     {
         if context.is_valid_identifier(&identifier).is_ok() {
             let started_task = context.get_task(&identifier);
