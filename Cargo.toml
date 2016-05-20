@@ -2,6 +2,9 @@
 name = "pomorust"
 version = "0.1.0"
 authors = ["Adrien Duclos <adrien.duclos@milibris.com>"]
+description = "Pomodori technique utility tool"
+license = "GPL-3"
+include = ["data/ding.ogg"]
 
 [dependencies]
 uuid="0.1"

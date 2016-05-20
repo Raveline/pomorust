@@ -16,7 +16,9 @@ pub fn wait_for(minutes: u64) {
 pub fn ding() {
     let endpoint = rodio::get_default_endpoint().unwrap();
     let sink = rodio::Sink::new(&endpoint);
-    let file = File::open("ding.ogg").unwrap();
+    let path = concat!(env!("CARGO_MANIFEST_DIR"),
+            "/data/ding.ogg");
+    let file = File::open(path).unwrap();
     sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
     /* Unfortunately, Rodio sleep until end is not working yet;
     So we will just sleep for one second, time enough for the sound
