@@ -2,11 +2,22 @@ use std::fs::File;
 use std::io::Read;
 use std::io::Error;
 use std::io::Write;
+use std::path::{Path, PathBuf};
+use ini::Ini;
+use xdg;
 use pomorust::model::tasks::Task;
 use pomorust::model::context::Context;
-use ini::Ini;
 
 const CONF_FILE_NAME: &'static str = ".pomorust.ini";
+const TASK_FILE_NAME: &'static str = "task";
+
+/// Technically, we should put the config file in XDG_CONFIG_HOME.
+/// But I find this a bit bothersome for a few lines.
+/// So we will put everything in XDG_DATA_HOME.
+fn get_path_for(path: &Path) -> PathBuf {
+    let xdg_dirs = xdg::BaseDirectories::with_prefix("pomorust").unwrap();
+    xdg_dirs.place_data_file(path).expect("Could not create rust in local config directory")
+}
 
 pub fn create_context() -> Context {
     let ini = read_ini_file();
@@ -34,12 +45,12 @@ pub fn create_ini_file() -> Ini {
     conf.with_section(None::<String>)
         .set("use_notification", "true")
         .set("use_sound", "true");
-    conf.write_to_file(CONF_FILE_NAME).unwrap();
+    conf.write_to_file(get_path_for(Path::new(CONF_FILE_NAME)).to_str().expect("Invalid path")).unwrap();
     conf
 }
 
 pub fn read_task_file() -> Option<Vec<Task>> {
-    let mut file = match File::open("tasks") {
+    let mut file = match File::open(&get_path_for(Path::new(TASK_FILE_NAME))) {
         Ok(file) => file,
         Err(_) => return None
     };
@@ -59,7 +70,7 @@ pub fn read_task_file() -> Option<Vec<Task>> {
 
 pub fn write_task_file(tasks: &Vec<Task>) -> Result<(), Error> {
     let tasks_as_strings = tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
-    let mut file = File::create("tasks").unwrap();
+    let mut file = File::create(&get_path_for(Path::new(TASK_FILE_NAME))).unwrap();
     for s in tasks_as_strings {
         try!(file.write(&s.into_bytes()));
     }

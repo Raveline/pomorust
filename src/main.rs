@@ -1,5 +1,6 @@
 #![feature(process_exec)]
 #![feature(type_ascription)]
+extern crate xdg;
 extern crate uuid;
 extern crate argparse;
 extern crate notify_rust;
