@@ -63,6 +63,10 @@ impl Task {
         self.uuid.to_string().starts_with(identifier)
     }
 
+    pub fn is_finished(&self) -> bool {
+        self.end_date.is_some()
+    }
+
     pub fn to_csv(&self) -> String {
         let start_date_string = self.start_date.map_or(String::new(), |x|x.to_rfc3339());
         let end_date_string = self.end_date.map_or(String::new(), |x| x.to_rfc3339());

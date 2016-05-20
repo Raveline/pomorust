@@ -43,4 +43,8 @@ impl Context {
             .find(|x| x.can_be_identified_by(&identifier))
             .unwrap()
     }
+
+    pub fn get_current_tasks(&self) -> Vec<&Task> {
+        self.tasks.iter().filter(|&x| !x.is_finished()).collect::<Vec<&Task>>()
+    }
 }
