@@ -42,6 +42,10 @@ impl Task {
         if self.start_date.is_none() {
             self.start_date = Some(chrono::Local::now())
         }
+        self.is_ongoing = true;
+    }
+
+    pub fn do_one_pomodoro(&mut self) {
         wait_for(25);
         self.increment_pomodoro();
     }

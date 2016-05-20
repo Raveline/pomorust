@@ -59,41 +59,34 @@ fn list_task(context: Context) {
 
 fn start_task(context: &mut Context, identifier: String) {
     {
-        let started_task = match identify_task(&mut context.tasks, identifier) {
-            MatchingResult::NoMatch => panic!("No such task !"),
-            MatchingResult::AmbiguousMatch => panic!("Too many possible tasks !"),
-            MatchingResult::OneMatch(t) => t
-        };
-        println!("Starting task : {}", started_task.to_string());
-        started_task.start();
-
-        if context.use_notification {
-            utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+        if context.is_valid_identifier(&identifier).is_ok() {
+            let started_task = context.get_task(&identifier);
+            println!("Starting task : {}", started_task.to_string());
+            // Set flags and starting date...
+            started_task.start();
         } else {
-            println!("Done working on {}", started_task.description);
+            panic!("Not a valid identifier !");
         }
-        if context.use_sound {
-            utils::ding();
-        }
+    }
+    // ... and save this state.
+    config::write_task_file(&context.tasks).unwrap();
+    {
+        let started_task = context.get_task(&identifier);
+        // Only then, do the pomodoro itself.
+        started_task.do_one_pomodoro();
+    }
+    after_pomodoro(&context);
+}
+
+
+fn after_pomodoro(context: &Context) {
+    if context.use_notification {
+        utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+    } else {
+        println!("Done working !");
+    }
+    if context.use_sound {
+        utils::ding();
     }
     config::write_task_file(&context.tasks).unwrap();
-}
-
-enum MatchingResult<'a> {
-    NoMatch,
-    OneMatch(&'a mut Task),
-    AmbiguousMatch
-}
-
-fn identify_task<'a>(tasks : &'a mut Vec<Task>, identifier: String) -> MatchingResult<'a> {
-    let mut matching = tasks
-        .iter_mut()
-        .filter(|x| x.can_be_identified_by(&identifier));
-    match matching.next() {
-        None => MatchingResult::NoMatch,
-        Some(n) => match matching.next() {
-            None => MatchingResult::OneMatch(n),
-            Some(_) => MatchingResult::AmbiguousMatch
-        }
-    }
 }
