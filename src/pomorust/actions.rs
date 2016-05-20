@@ -20,6 +20,7 @@ impl FromStr for Command {
             "start" => Ok(Command::TaskStart(None)),
             "new" => Ok(Command::TaskNew(None)),
             "list" => Ok(Command::TaskList),
+            "done" => Ok(Command::TaskDone(None)),
             _ => Err(())
         }
     }

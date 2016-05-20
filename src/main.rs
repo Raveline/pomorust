@@ -41,6 +41,7 @@ fn main() {
             Command::TaskNew(Some(t)) => { add_task(&mut context, t); },
             Command::TaskList => { list_task(context); },
             Command::TaskStart(Some(t)) => { utils::run_background_process(t); }
+            Command::TaskDone(Some(t)) => { mark_as_done(&mut context, t); }
             _ => panic!("Invalid command")
         }
     }
@@ -83,7 +84,6 @@ fn start_task(context: &mut Context, identifier: String) {
     after_pomodoro(&context);
 }
 
-
 fn after_pomodoro(context: &Context) {
     if context.use_notification {
         utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
@@ -92,6 +92,18 @@ fn after_pomodoro(context: &Context) {
     }
     if context.use_sound {
         utils::ding();
+    }
+    config::write_task_file(&context.tasks).unwrap();
+}
+
+fn mark_as_done(context: &mut Context, identifier: String) {
+    if context.is_valid_identifier(&identifier).is_ok() {
+        {
+            let task = context.get_task(&identifier);
+            task.finish();
+        }
+    } else {
+        panic!("Could not identify task");
     }
     config::write_task_file(&context.tasks).unwrap();
 }
