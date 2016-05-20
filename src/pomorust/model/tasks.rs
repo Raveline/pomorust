@@ -48,6 +48,7 @@ impl Task {
     pub fn do_one_pomodoro(&mut self) {
         wait_for(25);
         self.increment_pomodoro();
+        self.is_ongoing = false;
     }
 
     pub fn finish(&mut self) {
