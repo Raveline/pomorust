@@ -84,4 +84,8 @@ impl Context {
         }
         self.last_pomodoro = Some(chrono::Local::now());
     }
+
+    pub fn should_be_long_pause(&self) -> bool {
+        self.last_pomodoro_was_recent() && self.pomodori_count == 3
+    }
 }

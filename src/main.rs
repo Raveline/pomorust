@@ -82,7 +82,7 @@ fn start_task(context: &mut Context, identifier: String) {
         started_task.do_one_pomodoro();
     }
     after_pomodoro(&context);
-    if context.last_pomodoro_was_recent() && context.pomodori_count == 4 {
+    if context.should_be_long_pause() {
         pause(&context, 30);
     } else {
         pause(&context, 5);
