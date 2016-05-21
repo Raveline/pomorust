@@ -64,13 +64,13 @@ pub fn read_task_file() -> Option<(u16, utils::MaybeLocalDate, Vec<Task>)> {
         Err(_) => return None
     };
     let mut tasks: Vec<Task> = Vec::new();
-    let mut lines = file_txt.split("\n").collect::<Vec<&str>>();
+    let lines = file_txt.split("\n").collect::<Vec<&str>>();
     if lines.len() <= 2 {
         return None
     }
-    let last_pomo_line = lines.pop().unwrap();
-    let pomo_count_line = lines.pop().unwrap();
-    for l in lines {
+    let last_pomo_line = lines[0];
+    let pomo_count_line = lines[1];
+    for l in lines.into_iter().skip(2) {
         if l.len() > 0 {
             tasks.push(Task::from_csv(l));
         }
