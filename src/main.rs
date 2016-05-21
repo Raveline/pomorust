@@ -55,7 +55,7 @@ fn add_task(context: &mut Context,  task: Task) {
 
 fn list_task(context: Context) {
     for t in context.get_current_tasks() {
-        println!("{}", t.to_string());
+        println!("{}", t.to_list_line());
     }
 }
 

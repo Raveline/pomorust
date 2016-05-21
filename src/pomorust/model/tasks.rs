@@ -106,12 +106,20 @@ impl Task {
             end_date: end_date
         }
     }
+
+    pub fn to_list_line(&self) -> String {
+        let ongoing_sign = match self.is_ongoing {
+            false => "-",
+            true => "!"
+        };
+        format!("{0} {1: <38} {2:.<80} {3} / {4}",
+                ongoing_sign, self.uuid.to_string(), self.description,
+                self.pomodori_count, self.pomodori_estimate)
+    }
 }
 
 impl ToString for Task {
     fn to_string(&self) -> String {
-        format!("{0: <38} {1:.<80} {2} / {3}",
-                self.uuid.to_string(), self.description,
-                self.pomodori_count, self.pomodori_estimate)
+        format!("{}", self.description)
     }
 }
