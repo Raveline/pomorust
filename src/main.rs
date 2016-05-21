@@ -89,7 +89,7 @@ fn after_pomodoro(context: &Context) {
     config::write_task_file(&context).unwrap();
 }
 
-fn pause(context: &Context, minutes: i16) {
+fn pause(context: &Context, minutes: u16) {
     utils::wait_for(minutes);
     notify_according_to_context(&context, "Break is over !", "Start a new task");
 }
