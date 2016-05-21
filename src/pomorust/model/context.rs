@@ -1,9 +1,17 @@
 use pomorust::model::tasks::Task;
+use pomorust::utils::MaybeLocalDate;
 
 pub struct Context {
+    /// Should OS level notification be used
     pub use_notification: bool,
+    /// Should sounds be played
     pub use_sound: bool,
-    pub tasks: Vec<Task>
+    /// Listing of tasks recorded by the user
+    pub tasks: Vec<Task>,
+    /// When was the last pomodoro done ?
+    pub last_pomodoro: MaybeLocalDate,
+    /// How many sequential pomodori were run ?
+    pub pomodori_count: u16
 }
 
 #[derive(Debug)]
