@@ -85,16 +85,26 @@ fn start_task(context: &mut Context, identifier: String) {
 }
 
 fn after_pomodoro(context: &Context) {
+    notify_according_to_context(&context, "Pomodoro done !", "Take a 5 minute break !");
+    config::write_task_file(&context.tasks).unwrap();
+}
+
+fn pause(context: &Context, minutes: i16) {
+    utils::wait_for(minutes);
+    notify_according_to_context(&context, "Break is over !", "Start a new task");
+}
+
+fn notify_according_to_context(context: &Context, notif_title: &str, notif_text: &str) {
     if context.use_notification {
-        utils::notify("Pomodoro done !", "Pomodoro done. Take a 5 minutes break !");
+        utils::notify(notif_title, notif_text);
     } else {
-        println!("Done working !");
+        println!("{} {}", notif_title, notif_text);
     }
     if context.use_sound {
         utils::ding();
     }
-    config::write_task_file(&context.tasks).unwrap();
 }
+
 
 fn mark_as_done(context: &mut Context, identifier: String) {
     if context.is_valid_identifier(&identifier).is_ok() {
