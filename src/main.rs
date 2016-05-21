@@ -82,6 +82,13 @@ fn start_task(context: &mut Context, identifier: String) {
         started_task.do_one_pomodoro();
     }
     after_pomodoro(&context);
+    if context.last_pomodoro_was_recent() && context.pomodori_count == 4 {
+        pause(&context, 30);
+    } else {
+        pause(&context, 5);
+    }
+    context.increment_pomodoro_count();
+    config::write_task_file(&context).unwrap();
 }
 
 fn after_pomodoro(context: &Context) {
