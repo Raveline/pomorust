@@ -7,10 +7,24 @@ use std::os::unix::process::CommandExt;
 use std::io::BufReader;
 use notify_rust::Notification;
 use notify_rust::NotificationHint as Hint;
+use chrono;
 use rodio;
 
-pub fn wait_for(minutes: u64) {
-    thread::sleep(Duration::new(minutes * 60, 0));
+pub type MaybeLocalDate = Option<chrono::DateTime<chrono::Local>>;
+
+pub fn wait_for(minutes: u16) {
+    thread::sleep(Duration::new(minutes as u64 * 60, 0));
+}
+
+/// Try to parse a date if a string is not empty. Fail if the date
+/// is not correct. Return None if the string is empty.
+pub fn parse_maybe_local_date(str: &str, err_str: &str) -> MaybeLocalDate {
+    match str.len() {
+        0 => None,
+        _ => Some(str.parse::<chrono::DateTime<chrono::Local>>()
+            .ok()
+            .expect(err_str))
+    }
 }
 
 pub fn ding() {
