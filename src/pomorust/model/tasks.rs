@@ -1,8 +1,7 @@
 use uuid::Uuid;
 use chrono;
-use pomorust::utils::wait_for;
+use pomorust::utils::{wait_for, MaybeLocalDate, parse_maybe_local_date};
 
-type MaybeLocalDate = Option<chrono::DateTime<chrono::Local>>;
 
 #[derive(Debug)]
 pub struct Task {
@@ -92,18 +91,10 @@ impl Task {
             .expect("Error in the task file : pomodori count not parsable");
         let comment = task_elements[4];
         let is_ongoing : bool = task_elements[5] == "true";
-        let start_date : MaybeLocalDate = match task_elements[6].len() {
-            0 => None,
-            _ => Some(task_elements[6].parse::<chrono::DateTime<chrono::Local>>()
-                .ok()
-                .expect("Error in the task file : start date not parsable."))
-        };
-        let end_date : MaybeLocalDate = match task_elements[7].len() {
-            0 => None,
-            _ => Some(task_elements[7].parse::<chrono::DateTime<chrono::Local>>()
-                .ok()
-                .expect("Error in the task file : start date not parsable."))
-        };
+        let start_date = parse_maybe_local_date(task_elements[6],
+            "Error in the task file : start date not parsable.");
+        let end_date = parse_maybe_local_date(task_elements[7],
+            "Error in the task file : start date not parsable.");
         Task {
             description: desc.to_string(),
             uuid: uuid,
