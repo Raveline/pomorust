@@ -86,7 +86,9 @@ pub fn write_task_file(context: &Context) -> Result<(), Error> {
 
     let last_pomodoro_string = context.last_pomodoro.map_or(String::new(), |x|x.to_rfc3339());
     try!(file.write(&last_pomodoro_string.into_bytes()));
+    try!(file.write(b"\n"));
     try!(file.write(&context.pomodori_count.to_string().into_bytes()));
+    try!(file.write(b"\n"));
 
     for s in tasks_as_strings {
         try!(file.write(&s.into_bytes()));
