@@ -50,7 +50,7 @@ fn main() {
 fn add_task(context: &mut Context,  task: Task) {
     println!("New task :\t{}", task.to_string());
     context.add_task(task);
-    config::write_task_file(&context.tasks).unwrap();
+    config::write_task_file(&context).unwrap();
 }
 
 fn list_task(context: Context) {
@@ -75,7 +75,7 @@ fn start_task(context: &mut Context, identifier: String) {
         }
     }
     // ... and save this state.
-    config::write_task_file(&context.tasks).unwrap();
+    config::write_task_file(&context).unwrap();
     {
         let started_task = context.get_task(&identifier);
         // Only then, do the pomodoro itself.
@@ -86,7 +86,7 @@ fn start_task(context: &mut Context, identifier: String) {
 
 fn after_pomodoro(context: &Context) {
     notify_according_to_context(&context, "Pomodoro done !", "Take a 5 minute break !");
-    config::write_task_file(&context.tasks).unwrap();
+    config::write_task_file(&context).unwrap();
 }
 
 fn pause(context: &Context, minutes: i16) {
@@ -115,5 +115,5 @@ fn mark_as_done(context: &mut Context, identifier: String) {
     } else {
         panic!("Could not identify task");
     }
-    config::write_task_file(&context.tasks).unwrap();
+    config::write_task_file(&context).unwrap();
 }

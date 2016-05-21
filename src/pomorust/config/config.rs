@@ -7,6 +7,7 @@ use ini::Ini;
 use xdg;
 use pomorust::model::tasks::Task;
 use pomorust::model::context::Context;
+use pomorust::utils;
 
 const CONF_FILE_NAME: &'static str = ".pomorust.ini";
 const TASK_FILE_NAME: &'static str = "task";
@@ -24,13 +25,16 @@ pub fn create_context() -> Context {
     let main_sec = ini.general_section();
     let ref with_sound = main_sec["use_sound"];
     let ref with_notification = main_sec["use_notification"];
-    let task_list = match read_task_file() {
-        Some(ts) => ts,
-        None => Vec::new()
+    let (pomo_count, last_pomo_date, task_list) = match read_task_file() {
+        Some((pc, lpd, tl)) => (pc, lpd, tl),
+        None => (0, None, Vec::new())
     };
     Context { tasks: task_list,
               use_notification: with_notification == "true",
-              use_sound: with_sound == "true" }
+              use_sound: with_sound == "true",
+              pomodori_count: pomo_count,
+              last_pomodoro: last_pomo_date
+    }
 }
 
 pub fn read_ini_file() -> Ini {
@@ -49,7 +53,7 @@ pub fn create_ini_file() -> Ini {
     conf
 }
 
-pub fn read_task_file() -> Option<Vec<Task>> {
+pub fn read_task_file() -> Option<(u16, utils::MaybeLocalDate, Vec<Task>)> {
     let mut file = match File::open(&get_path_for(Path::new(TASK_FILE_NAME))) {
         Ok(file) => file,
         Err(_) => return None
@@ -59,18 +63,31 @@ pub fn read_task_file() -> Option<Vec<Task>> {
         Ok(_) => {},
         Err(_) => return None
     };
-    let mut data: Vec<Task> = Vec::new();
-    for l in file_txt.split("\n").collect::<Vec<&str>>() {
+    let mut tasks: Vec<Task> = Vec::new();
+    let mut lines = file_txt.split("\n").collect::<Vec<&str>>();
+    if lines.len() <= 2 {
+        return None
+    }
+    let last_pomo_line = lines.pop().unwrap();
+    let pomo_count_line = lines.pop().unwrap();
+    for l in lines {
         if l.len() > 0 {
-            data.push(Task::from_csv(l));
+            tasks.push(Task::from_csv(l));
         }
     }
-    Some(data)
+    let last_pomo = utils::parse_maybe_local_date(last_pomo_line, "Last pomodoro date is invalid");
+    let pomo_count : u16 = pomo_count_line.parse().ok().expect("Could not parse pomodoro count");
+    Some((pomo_count, last_pomo, tasks))
 }
 
-pub fn write_task_file(tasks: &Vec<Task>) -> Result<(), Error> {
-    let tasks_as_strings = tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
+pub fn write_task_file(context: &Context) -> Result<(), Error> {
+    let tasks_as_strings = context.tasks.iter().map(|x| x.to_csv()).collect::<Vec<String>>();
     let mut file = File::create(&get_path_for(Path::new(TASK_FILE_NAME))).unwrap();
+
+    let last_pomodoro_string = context.last_pomodoro.map_or(String::new(), |x|x.to_rfc3339());
+    try!(file.write(&last_pomodoro_string.into_bytes()));
+    try!(file.write(&context.pomodori_count.to_string().into_bytes()));
+
     for s in tasks_as_strings {
         try!(file.write(&s.into_bytes()));
     }
