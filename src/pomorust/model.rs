@@ -109,7 +109,13 @@ impl Task {
 
     pub fn to_list_line(&self) -> String {
         let ongoing_sign = match self.is_ongoing {
-            false => "-",
+            false => {
+                if self.end_date.is_some() {
+                    "-"
+                } else {
+                    "+"
+                }
+            },
             true => "!"
         };
         format!("{0} {1: <38} {2:.<80} {3} / {4}",
