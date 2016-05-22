@@ -198,7 +198,7 @@ impl Context {
     pub fn increment_pomodoro_count(&mut self) {
         if self.last_pomodoro_was_recent() {
             self.pomodori_count += 1 ;
-            if self.pomodori_count > 3 {
+            if self.pomodori_count > 4 {
                 self.pomodori_count = 0;
             }
         } else {
@@ -208,6 +208,30 @@ impl Context {
     }
 
     pub fn should_be_long_pause(&self) -> bool {
-        self.last_pomodoro_was_recent() && self.pomodori_count == 3
+        self.last_pomodoro_was_recent() && self.pomodori_count == 4
     }
+}
+
+#[test]
+fn test_pomodoro_count() {
+    let mut context = Context {
+        use_notification: false,
+        use_sound: false,
+        tasks: vec!(),
+        last_pomodoro: None,
+        pomodori_count: 0
+    };
+    // First pomodoro of a session
+    context.increment_pomodoro_count();
+    // Counter should have been incremented
+    assert_eq!(context.pomodori_count, 1);
+    // Last pomodoro should be recent
+    assert_eq!(true, context.last_pomodoro_was_recent());
+    // There should be only a brief pause
+    assert_eq!(false, context.should_be_long_pause());
+    // Second pomodoro of a session
+    context.increment_pomodoro_count();
+    // Third pomodoro of a session
+    context.increment_pomodoro_count();
+    assert_eq!(false, context.should_be_long_pause());
 }

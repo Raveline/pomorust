@@ -82,12 +82,12 @@ fn start_task(context: &mut Context, identifier: String) {
         started_task.do_one_pomodoro();
     }
     after_pomodoro(&context);
+    context.increment_pomodoro_count();
     if context.should_be_long_pause() {
         pause(&context, 30);
     } else {
         pause(&context, 5);
     }
-    context.increment_pomodoro_count();
     config::write_task_file(&context).unwrap();
 }
 
