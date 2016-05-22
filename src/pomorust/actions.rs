@@ -45,10 +45,7 @@ fn new_task(args: Vec<String>) -> Command {
         ap.refer(&mut pomodori_estimate).add_argument(
             "estimated_number", Store,
             r#"Number of pomodori you think this task will take"#);
-        match ap.parse(args, &mut stdout(), &mut stderr()) {
-            Ok(()) => {}
-            Err(x) => {println!("{}", x)}
-        }
+        parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
     }
     let t = Task::new(&description, pomodori_estimate);
     Command::TaskNew(Some(t))
@@ -62,10 +59,7 @@ fn identify(args: Vec<String>) -> Option<String> {
         ap.refer(&mut uuid_begin).required().add_argument(
             "identifier", Store,
             r#"Beginning of the UUID of the task"#);
-        match ap.parse(args, &mut stdout(), &mut stderr()) {
-            Ok(()) => {}
-            Err(x) => {println!("{}", x)}
-        }
+        parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
     }
     Some(uuid_begin)
 }
