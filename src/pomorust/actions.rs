@@ -75,14 +75,20 @@ pub fn parse() -> Command {
     let mut args = vec!();
     {
         let mut ap = ArgumentParser::new();
-        ap.set_description("Pomodoro utility");
+        ap.set_description("Pomodoro technique utility");
         ap.refer(&mut subcommand).required()
             .add_argument("command", Store,
-                          r#"Command to run ("start", "new", "list")"#);
+                          r#"Command to run ("start", "new", "list", "done")"#);
         ap.refer(&mut args).
             add_argument("arguments", List, r#"Arguments for command"#);
         ap.stop_on_first_argument(true);
-        ap.parse_args_or_exit();
+        match ap.parse_args() {
+            Ok(()) => (),
+            Err(_) => {
+                println!("Unknown command.");
+                ap.print_help(&"Pomorust", &mut stdout()).unwrap();
+            }
+        }
     }
     args.insert(0, format!("subcommand {:?}", subcommand));
     match subcommand {
