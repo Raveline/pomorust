@@ -5,8 +5,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use ini::Ini;
 use xdg;
-use pomorust::model::tasks::Task;
-use pomorust::model::context::Context;
+use pomorust::model::Task;
+use pomorust::model::Context;
 use pomorust::utils;
 
 const CONF_FILE_NAME: &'static str = ".pomorust.ini";

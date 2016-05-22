@@ -13,10 +13,10 @@ pub mod pomorust;
 use std::env;
 use std::process;
 
-use pomorust::config::config;
+use pomorust::config;
 use pomorust::actions::{parse, Command};
-use pomorust::model::context::Context;
-use pomorust::model::tasks::Task;
+use pomorust::model::Context;
+use pomorust::model::Task;
 use pomorust::utils;
 
 fn check_if_background_proc() -> bool {

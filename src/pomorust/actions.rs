@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::io::{stdout, stderr};
 
 use argparse::{ArgumentParser, Store, List};
-use pomorust::model::tasks::Task;
+use pomorust::model::Task;
 
 
 #[derive(Debug)]
