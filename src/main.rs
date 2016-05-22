@@ -14,7 +14,7 @@ use std::env;
 use std::process;
 
 use pomorust::config;
-use pomorust::actions::{parse, Command};
+use pomorust::actions::{parse, Command, ListingOption};
 use pomorust::model::Context;
 use pomorust::model::Task;
 use pomorust::utils;
@@ -39,7 +39,7 @@ fn main() {
     else {
         match parse() {
             Command::TaskNew(Some(t)) => { add_task(&mut context, t); },
-            Command::TaskList => { list_task(context); },
+            Command::TaskList(Some(o)) => { list_task(context, o); },
             Command::TaskStart(Some(t)) => { utils::run_background_process(t); }
             Command::TaskDone(Some(t)) => { mark_as_done(&mut context, t); }
             _ => panic!("Invalid command")
@@ -53,8 +53,12 @@ fn add_task(context: &mut Context,  task: Task) {
     config::write_task_file(&context).unwrap();
 }
 
-fn list_task(context: Context) {
-    for t in context.get_current_tasks() {
+fn list_task(context: Context, opt: ListingOption) {
+    let to_iterate = match opt.only_current {
+        true => context.get_current_tasks(),
+        false => context.tasks.iter().collect()
+    };
+    for t in to_iterate {
         println!("{}", t.to_list_line());
     }
 }

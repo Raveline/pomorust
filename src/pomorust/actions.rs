@@ -1,7 +1,8 @@
+use std::process::exit;
 use std::str::FromStr;
 use std::io::{stdout, stderr};
 
-use argparse::{ArgumentParser, Store, List};
+use argparse::{ArgumentParser, Store, List, StoreFalse};
 use pomorust::model::Task;
 
 
@@ -10,7 +11,12 @@ pub enum Command {
     TaskStart(Option<String>),
     TaskNew(Option<Task>),
     TaskDone(Option<String>),
-    TaskList
+    TaskList(Option<ListingOption>)
+}
+
+#[derive(Debug)]
+pub struct ListingOption {
+    pub only_current: bool
 }
 
 impl FromStr for Command {
@@ -19,7 +25,7 @@ impl FromStr for Command {
         return match src {
             "start" => Ok(Command::TaskStart(None)),
             "new" => Ok(Command::TaskNew(None)),
-            "list" => Ok(Command::TaskList),
+            "list" => Ok(Command::TaskList(None)),
             "done" => Ok(Command::TaskDone(None)),
             _ => Err(())
         }
@@ -64,14 +70,31 @@ fn identify(args: Vec<String>) -> Option<String> {
     Some(uuid_begin)
 }
 
-// We might want to add some filtering options here one day
-#[allow(unused_variables)]
 fn list_task(args: Vec<String>) -> Command {
-    Command::TaskList
+    let mut listing_option = ListingOption { only_current: true };
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Lists all registered tasks");
+        ap.refer(&mut listing_option.only_current).add_option(&["-a", "--all"], StoreFalse,
+            "Display every tasks, even those who are done");
+        parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
+    }
+    Command::TaskList(Some(listing_option))
+}
+
+pub fn parse_or_usage(parser: &ArgumentParser, res: Result<(), i32>) {
+    match res {
+        Ok(()) => (),
+        Err(_) => {
+            println!("Unknown command.");
+            parser.print_help(&"Pomorust", &mut stdout()).unwrap();
+            exit(1);
+        }
+    }
 }
 
 pub fn parse() -> Command {
-    let mut subcommand = Command::TaskList;
+    let mut subcommand = Command::TaskList(None);
     let mut args = vec!();
     {
         let mut ap = ArgumentParser::new();
@@ -82,19 +105,13 @@ pub fn parse() -> Command {
         ap.refer(&mut args).
             add_argument("arguments", List, r#"Arguments for command"#);
         ap.stop_on_first_argument(true);
-        match ap.parse_args() {
-            Ok(()) => (),
-            Err(_) => {
-                println!("Unknown command.");
-                ap.print_help(&"Pomorust", &mut stdout()).unwrap();
-            }
-        }
+        parse_or_usage(&ap, ap.parse_args());
     }
     args.insert(0, format!("subcommand {:?}", subcommand));
     match subcommand {
         Command::TaskStart(_) => Command::TaskStart(identify(args)),
         Command::TaskNew(_) => new_task(args),
         Command::TaskDone(_) => Command::TaskDone(identify(args)),
-        Command::TaskList => list_task(args),
+        Command::TaskList(_) => list_task(args),
     }
 }
