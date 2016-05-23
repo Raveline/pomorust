@@ -27,6 +27,13 @@ pub fn parse_maybe_local_date(str: &str, err_str: &str) -> MaybeLocalDate {
     }
 }
 
+pub fn parse_maybe_string(str: &str) -> Option<String> {
+    match str.len() {
+        0 => None,
+        _ => Some(str.to_string())
+    }
+}
+
 pub fn ding() {
     let endpoint = rodio::get_default_endpoint().unwrap();
     let sink = rodio::Sink::new(&endpoint);

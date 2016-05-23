@@ -2,7 +2,7 @@ use std::process::exit;
 use std::str::FromStr;
 use std::io::{stdout, stderr};
 
-use argparse::{ArgumentParser, Store, List, StoreFalse};
+use argparse::{ArgumentParser, Store, StoreOption, List, StoreFalse};
 use pomorust::model::Task;
 
 
@@ -38,18 +38,22 @@ impl FromStr for Command {
 fn new_task(args: Vec<String>) -> Command {
     let mut description = "".to_string();
     let mut pomodori_estimate = 0;
+    let mut kind = None;
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("Add a new task");
         ap.refer(&mut description).required().add_argument(
             "description", Store,
-            r#"Short description of the task"#);
+            "Short description of the task");
         ap.refer(&mut pomodori_estimate).add_option(
             &["-e", "--estimated"], Store,
-            r#"Number of pomodori you think this task will take"#);
+            "Number of pomodori you think this task will take");
+        ap.refer(&mut kind).add_option(
+            &["--type"], StoreOption,
+            "The general category of this task if any");
         parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
     }
-    let t = Task::new(&description, pomodori_estimate);
+    let t = Task::new(&description, pomodori_estimate, kind);
     Command::TaskNew(Some(t))
 }
 

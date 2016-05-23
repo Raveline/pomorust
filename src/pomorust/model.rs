@@ -1,6 +1,7 @@
 use uuid::Uuid;
 use chrono;
-use pomorust::utils::{wait_for, MaybeLocalDate, parse_maybe_local_date};
+use pomorust::utils::{wait_for, MaybeLocalDate,
+    parse_maybe_local_date, parse_maybe_string};
 
 
 #[derive(Debug)]
@@ -17,6 +18,8 @@ pub struct Task {
     pub is_ongoing: bool,
     /// Comment
     comment: String,
+    /// A general idea of what kind of activity this task is
+    kind: Option<String>,
     /// When (and if) this task was started for the first time
     start_date: MaybeLocalDate,
     /// When (and if) this task was finished
@@ -24,13 +27,14 @@ pub struct Task {
 }
 
 impl Task {
-    pub fn new(desc: &str, estimate: u16) -> Task {
+    pub fn new(desc: &str, estimate: u16, kind: Option<String>) -> Task {
         Task {
             description: desc.to_string(),
             uuid: Uuid::new_v4(),
             pomodori_count: 0,
             pomodori_estimate: estimate,
             comment: "".to_string(),
+            kind: kind,
             is_ongoing: false,
             start_date: None,
             end_date: None
@@ -69,11 +73,11 @@ impl Task {
     pub fn to_csv(&self) -> String {
         let start_date_string = self.start_date.map_or(String::new(), |x|x.to_rfc3339());
         let end_date_string = self.end_date.map_or(String::new(), |x| x.to_rfc3339());
-        format!("{};{};{};{};{};{};{};{}\n", self.description, self.uuid,
+        format!("{};{};{};{};{};{};{};{};{}\n", self.description, self.uuid,
                 self.pomodori_count, self.pomodori_estimate,
                 self.comment, self.is_ongoing,
-                start_date_string,
-                end_date_string
+                self.kind.as_ref().unwrap_or(&"".to_string()),
+                start_date_string, end_date_string
         )
     }
 
@@ -91,9 +95,10 @@ impl Task {
             .expect("Error in the task file : pomodori count not parsable");
         let comment = task_elements[4];
         let is_ongoing : bool = task_elements[5] == "true";
-        let start_date = parse_maybe_local_date(task_elements[6],
+        let kind = parse_maybe_string(task_elements[6]);
+        let start_date = parse_maybe_local_date(task_elements[7],
             "Error in the task file : start date not parsable.");
-        let end_date = parse_maybe_local_date(task_elements[7],
+        let end_date = parse_maybe_local_date(task_elements[8],
             "Error in the task file : start date not parsable.");
         Task {
             description: desc.to_string(),
@@ -102,6 +107,7 @@ impl Task {
             pomodori_estimate: pomodori_estimate,
             comment: comment.to_string(),
             is_ongoing: is_ongoing,
+            kind: kind,
             start_date: start_date,
             end_date: end_date
         }
