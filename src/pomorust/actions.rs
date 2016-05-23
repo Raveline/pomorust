@@ -11,7 +11,8 @@ pub enum Command {
     TaskStart(Option<String>),
     TaskNew(Option<Task>),
     TaskDone(Option<String>),
-    TaskList(Option<ListingOption>)
+    TaskList(Option<ListingOption>),
+    Status
 }
 
 #[derive(Debug)]
@@ -27,6 +28,7 @@ impl FromStr for Command {
             "new" => Ok(Command::TaskNew(None)),
             "list" => Ok(Command::TaskList(None)),
             "done" => Ok(Command::TaskDone(None)),
+            "status" => Ok(Command::Status),
             _ => Err(())
         }
     }
@@ -88,7 +90,7 @@ pub fn parse_or_usage(parser: &ArgumentParser, res: Result<(), i32>) {
 }
 
 pub fn parse() -> Command {
-    let mut subcommand = Command::TaskList(None);
+    let mut subcommand = Command::Status;
     let mut args = vec!();
     {
         let mut ap = ArgumentParser::new();
@@ -107,5 +109,6 @@ pub fn parse() -> Command {
         Command::TaskNew(_) => new_task(args),
         Command::TaskDone(_) => Command::TaskDone(identify(args)),
         Command::TaskList(_) => list_task(args),
+        _ => subcommand
     }
 }
