@@ -156,6 +156,17 @@ pub enum IdentificationError {
 
 impl Context {
 
+    pub fn display_status(&self) {
+        if self.current_pomodoro_start_time.is_some() {
+            let elapsed = chrono::Local::now() - self.current_pomodoro_start_time.unwrap();
+            println!("Doing a pomodoro : {} minutes done", elapsed.num_minutes());
+        } else if self.pause {
+            println!("Doing a break. Stop fiddling with this, do someting else !");
+        } else {
+            println!("Idle.");
+        }
+    }
+
     pub fn default() -> Context {
         Context { use_notification: true,
                   use_sound: true,

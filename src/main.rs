@@ -42,6 +42,7 @@ fn main() {
             Command::TaskList(Some(o)) => { list_task(context, o); },
             Command::TaskStart(Some(t)) => { utils::run_background_process(t); }
             Command::TaskDone(Some(t)) => { mark_as_done(&mut context, t); }
+            Command::Status => { context.display_status(); }
             _ => panic!("Invalid command")
         }
     }
@@ -64,6 +65,7 @@ fn list_task(context: Context, opt: ListingOption) {
 }
 
 fn start_task(context: &mut Context, identifier: String) {
+    context.current_pomodoro_start_time = Some(chrono::Local::now());
     if context.has_ongoing_task() {
         println!("You are already doing a task ! Mark it as done if you're over before starting a new one.");
         process::exit(0);
@@ -93,9 +95,13 @@ fn start_task(context: &mut Context, identifier: String) {
     context.increment_pomodoro_count();
     config::write_task_file(&context).unwrap();
     if context.should_be_long_pause() {
+        context.pause = true;
         pause(&context, 30);
+        context.pause = false;
     } else {
+        context.pause = true;
         pause(&context, 5);
+        context.pause = false;
     }
 }
 
