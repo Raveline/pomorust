@@ -90,10 +90,10 @@ fn start_task(context: &mut Context, identifier: String) {
     // Now that we are here, the context might have changed:
     // user could have added some tasks, for instance. Reload
     // context.
-    let updated_context = config::create_context();
+    let mut updated_context = config::create_context();
     after_pomodoro(&updated_context);
-    context.increment_pomodoro_count();
-    config::write_task_file(&context).unwrap();
+    updated_context.increment_pomodoro_count();
+    config::write_task_file(&updated_context).unwrap();
     if context.should_be_long_pause() {
         context.pause = true;
         pause(&context, 30);
