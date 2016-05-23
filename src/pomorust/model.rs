@@ -141,7 +141,11 @@ pub struct Context {
     /// When was the last pomodoro done ?
     pub last_pomodoro: MaybeLocalDate,
     /// How many sequential pomodori were run ?
-    pub pomodori_count: u16
+    pub pomodori_count: u16,
+    /// If we are doing a pomodoro, when was it started ?
+    pub current_pomodoro_start_time: MaybeLocalDate,
+    /// Are we currently during a pause ?
+    pub pause: bool
 }
 
 #[derive(Debug)]
@@ -151,8 +155,47 @@ pub enum IdentificationError {
 }
 
 impl Context {
+
+    pub fn default() -> Context {
+        Context { use_notification: true,
+                  use_sound: true,
+                  tasks: vec!(),
+                  last_pomodoro: None,
+                  pomodori_count: 0,
+                  current_pomodoro_start_time: None,
+                  pause: false }
+    }
+
+    pub fn from_csv_line(line: &str) -> Context {
+        let context_elements = line.split(";").collect::<Vec<&str>>();
+        let last_pomodoro = parse_maybe_local_date(context_elements[0],
+            "Could not parse last pomodoro time");
+        let pomodori_count : u16 = context_elements[1]
+            .parse().ok().expect("Could not parse pomodori_count");
+        let current_pomodoro_time = parse_maybe_local_date(context_elements[2],
+            "Could not parse current pomodoro time");
+        let pause = context_elements[3] == "true";
+        Context { tasks: vec!(),
+                  use_notification: true,
+                  use_sound: true,
+                  last_pomodoro: last_pomodoro,
+                  pomodori_count: pomodori_count,
+                  current_pomodoro_start_time: current_pomodoro_time,
+                  pause: pause }
+    }
+
     pub fn add_task(&mut self, task: Task) {
         self.tasks.push(task);
+    }
+
+    /// Get every context-related, not linked to config,
+    /// data and make it into a CSV-like line (used for serialization).
+    pub fn metadata_to_csv_line(&self) -> String {
+        let last_pomodoro_string = self.last_pomodoro.map_or(String::new(), |x|x.to_rfc3339());
+        let current_pomodoro_string = self.current_pomodoro_start_time.map_or(String::new(), |x|x.to_rfc3339());
+        format!("{};{};{};{}\n",
+            last_pomodoro_string, self.pomodori_count,
+            current_pomodoro_string, self.pause)
     }
 
     pub fn has_ongoing_task(&self) -> bool {
