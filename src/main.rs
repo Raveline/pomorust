@@ -85,19 +85,22 @@ fn start_task(context: &mut Context, identifier: String) {
         // Only then, do the pomodoro itself.
         started_task.do_one_pomodoro();
     }
-    after_pomodoro(&context);
+    // Now that we are here, the context might have changed:
+    // user could have added some tasks, for instance. Reload
+    // context.
+    let updated_context = config::create_context();
+    after_pomodoro(&updated_context);
     context.increment_pomodoro_count();
+    config::write_task_file(&context).unwrap();
     if context.should_be_long_pause() {
         pause(&context, 30);
     } else {
         pause(&context, 5);
     }
-    config::write_task_file(&context).unwrap();
 }
 
 fn after_pomodoro(context: &Context) {
     notify_according_to_context(&context, "Pomodoro done !", "Take a 5 minute break !");
-    config::write_task_file(&context).unwrap();
 }
 
 fn pause(context: &Context, minutes: u16) {
