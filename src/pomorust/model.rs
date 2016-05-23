@@ -160,7 +160,9 @@ impl Context {
         if self.timer.is_some() {
             let elapsed = chrono::Local::now() - self.timer.unwrap();
             if !self.pause {
-                println!("Doing a pomodoro : {} minutes done", elapsed.num_minutes());
+                let ongoing_task = self.get_ongoing_task().unwrap();
+                println!("Doing a pomodoro : {}.", ongoing_task.to_string());
+                println!("{} minutes done", elapsed.num_minutes());
             } else {
                 println!("You've been having a break for {} minutes.\
                          Stop fiddling with this, do someting else !", elapsed.num_minutes());
@@ -241,6 +243,10 @@ impl Context {
 
     pub fn get_current_tasks(&self) -> Vec<&Task> {
         self.tasks.iter().filter(|&x| !x.is_finished()).collect::<Vec<&Task>>()
+    }
+
+    fn get_ongoing_task(&self) -> Option<&Task> {
+        self.tasks.iter().find(|&x| x.is_ongoing)
     }
 
     /// Context must manage a basic idea of the pomodoro technique: regular pauses.
