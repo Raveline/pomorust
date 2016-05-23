@@ -42,8 +42,8 @@ fn new_task(args: Vec<String>) -> Command {
         ap.refer(&mut description).required().add_argument(
             "description", Store,
             r#"Short description of the task"#);
-        ap.refer(&mut pomodori_estimate).add_argument(
-            "estimated_number", Store,
+        ap.refer(&mut pomodori_estimate).add_option(
+            &["-e", "--estimated"], Store,
             r#"Number of pomodori you think this task will take"#);
         parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
     }
