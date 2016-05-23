@@ -65,7 +65,7 @@ fn list_task(context: Context, opt: ListingOption) {
 }
 
 fn start_task(context: &mut Context, identifier: String) {
-    context.current_pomodoro_start_time = Some(chrono::Local::now());
+    context.timer = Some(chrono::Local::now());
     if context.has_ongoing_task() {
         println!("You are already doing a task ! Mark it as done if you're over before starting a new one.");
         process::exit(0);

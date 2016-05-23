@@ -142,8 +142,8 @@ pub struct Context {
     pub last_pomodoro: MaybeLocalDate,
     /// How many sequential pomodori were run ?
     pub pomodori_count: u16,
-    /// If we are doing a pomodoro, when was it started ?
-    pub current_pomodoro_start_time: MaybeLocalDate,
+    /// If we are doing a pomodoro or a pause, when was it started ?
+    pub timer: MaybeLocalDate,
     /// Are we currently during a pause ?
     pub pause: bool
 }
@@ -157,8 +157,8 @@ pub enum IdentificationError {
 impl Context {
 
     pub fn display_status(&self) {
-        if self.current_pomodoro_start_time.is_some() {
-            let elapsed = chrono::Local::now() - self.current_pomodoro_start_time.unwrap();
+        if self.timer.is_some() {
+            let elapsed = chrono::Local::now() - self.timer.unwrap();
             println!("Doing a pomodoro : {} minutes done", elapsed.num_minutes());
         } else if self.pause {
             println!("Doing a break. Stop fiddling with this, do someting else !");
@@ -173,7 +173,7 @@ impl Context {
                   tasks: vec!(),
                   last_pomodoro: None,
                   pomodori_count: 0,
-                  current_pomodoro_start_time: None,
+                  timer: None,
                   pause: false }
     }
 
@@ -183,7 +183,7 @@ impl Context {
             "Could not parse last pomodoro time");
         let pomodori_count : u16 = context_elements[1]
             .parse().ok().expect("Could not parse pomodori_count");
-        let current_pomodoro_time = parse_maybe_local_date(context_elements[2],
+        let timer = parse_maybe_local_date(context_elements[2],
             "Could not parse current pomodoro time");
         let pause = context_elements[3] == "true";
         Context { tasks: vec!(),
@@ -191,7 +191,7 @@ impl Context {
                   use_sound: true,
                   last_pomodoro: last_pomodoro,
                   pomodori_count: pomodori_count,
-                  current_pomodoro_start_time: current_pomodoro_time,
+                  timer: timer,
                   pause: pause }
     }
 
@@ -203,10 +203,10 @@ impl Context {
     /// data and make it into a CSV-like line (used for serialization).
     pub fn metadata_to_csv_line(&self) -> String {
         let last_pomodoro_string = self.last_pomodoro.map_or(String::new(), |x|x.to_rfc3339());
-        let current_pomodoro_string = self.current_pomodoro_start_time.map_or(String::new(), |x|x.to_rfc3339());
+        let timer_string = self.timer.map_or(String::new(), |x|x.to_rfc3339());
         format!("{};{};{};{}\n",
             last_pomodoro_string, self.pomodori_count,
-            current_pomodoro_string, self.pause)
+            timer_string, self.pause)
     }
 
     pub fn has_ongoing_task(&self) -> bool {
