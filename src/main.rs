@@ -70,27 +70,30 @@ fn start_task(context: &mut Context, identifier: String) {
         println!("You are already doing a task ! Mark it as done if you're over before starting a new one.");
         process::exit(0);
     }
-    {
-        if context.is_valid_identifier(&identifier).is_ok() {
-            let started_task = context.get_task(&identifier);
-            println!("Starting task : {}", started_task.to_string());
-            // Set flags and starting date...
-            started_task.start();
-        } else {
-            panic!("Not a valid identifier !");
-        }
+
+    if context.is_valid_identifier(&identifier).is_ok() {
+        let started_task = context.get_task(&identifier);
+        started_task.before_starting_pomodoro();
+        println!("Starting task : {}", started_task.to_string());
+        // Set flags and starting date...
+        started_task.before_starting_pomodoro();
+    } else {
+        panic!("Not a valid identifier !");
     }
     // ... and save this state.
     config::write_task_file(&context).unwrap();
-    {
-        let started_task = context.get_task(&identifier);
-        // Only then, do the pomodoro itself.
-        started_task.do_one_pomodoro();
-    }
+
+    // Only then, do the pomodoro itself.
+    utils::wait_for(25);
+
     // Now that we are here, the context might have changed:
     // user could have added some tasks, for instance. Reload
     // context.
     let mut updated_context = config::create_context();
+    {
+        let mut worked_upon_task = updated_context.get_task(&identifier);
+        worked_upon_task.after_doing_pomodoro();
+    }
     after_pomodoro(&updated_context);
     updated_context.increment_pomodoro_count();
     config::write_task_file(&updated_context).unwrap();

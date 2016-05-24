@@ -1,7 +1,6 @@
 use uuid::Uuid;
 use chrono;
-use pomorust::utils::{wait_for, MaybeLocalDate,
-    parse_maybe_local_date, parse_maybe_string};
+use pomorust::utils::{MaybeLocalDate, parse_maybe_local_date, parse_maybe_string};
 
 
 #[derive(Debug)]
@@ -41,15 +40,14 @@ impl Task {
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn before_starting_pomodoro(&mut self) {
         if self.start_date.is_none() {
             self.start_date = Some(chrono::Local::now())
         }
         self.is_ongoing = true;
     }
 
-    pub fn do_one_pomodoro(&mut self) {
-        wait_for(25);
+    pub fn after_doing_pomodoro(&mut self) {
         self.increment_pomodoro();
         self.is_ongoing = false;
     }
