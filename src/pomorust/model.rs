@@ -126,6 +126,18 @@ impl Task {
                 ongoing_sign, self.uuid.to_string(), self.description,
                 self.pomodori_count, self.pomodori_estimate)
     }
+
+    pub fn modify(&mut self, modification: TaskModification) {
+        if modification.description.is_some() {
+            self.description = modification.description.unwrap();
+        }
+        if modification.pomodoro_estimation.is_some() {
+            self.pomodori_estimate = modification.pomodoro_estimation.unwrap();
+        }
+        if modification.kind.is_some() {
+            self.kind = modification.kind;
+        }
+    }
 }
 
 impl ToString for Task {
@@ -134,6 +146,12 @@ impl ToString for Task {
     }
 }
 
+#[derive(Debug)]
+pub struct TaskModification {
+    pub description: Option<String>,
+    pub pomodoro_estimation: Option<u16>,
+    pub kind: Option<String>,
+}
 
 pub struct Context {
     /// Should OS level notification be used
@@ -159,7 +177,6 @@ pub enum IdentificationError {
 }
 
 impl Context {
-
     pub fn display_status(&self) {
         if self.timer.is_some() {
             let elapsed = chrono::Local::now() - self.timer.unwrap();
@@ -283,6 +300,7 @@ impl Context {
     pub fn should_be_long_pause(&self) -> bool {
         self.last_pomodoro_was_recent() && self.pomodori_count == 4
     }
+
 }
 
 #[test]

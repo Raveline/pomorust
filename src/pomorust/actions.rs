@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::io::{stdout, stderr};
 
 use argparse::{ArgumentParser, Store, StoreOption, List, StoreFalse};
-use pomorust::model::Task;
+use pomorust::model::{Task, TaskModification};
 
 
 #[derive(Debug)]
@@ -12,8 +12,10 @@ pub enum Command {
     TaskNew(Option<Task>),
     TaskDone(Option<String>),
     TaskList(Option<ListingOption>),
+    TaskModify(Option<(String, TaskModification)>),
     Status
 }
+
 
 #[derive(Debug)]
 pub struct ListingOption {
@@ -29,6 +31,7 @@ impl FromStr for Command {
             "list" => Ok(Command::TaskList(None)),
             "done" => Ok(Command::TaskDone(None)),
             "status" => Ok(Command::Status),
+            "modify" => Ok(Command::TaskModify(None)),
             _ => Err(())
         }
     }
@@ -56,6 +59,33 @@ fn new_task(args: Vec<String>) -> Command {
     let t = Task::new(&description, pomodori_estimate, kind);
     Command::TaskNew(Some(t))
 }
+
+fn modify(args: Vec<String>) -> Command {
+    let mut uuid_begin = "".to_string();
+    let mut modify_option = TaskModification { description: None,
+                                               pomodoro_estimation: None, 
+                                               kind: None };
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Acts upon an identified command");
+        ap.refer(&mut uuid_begin).required().add_argument(
+            "identifier", Store,
+            "Enough UUID to identify the task - beware, \
+            this can modify even tasks that are done");
+        ap.refer(&mut modify_option.description).add_option(
+            &["-d", "--description"], StoreOption,
+            "New description for the task");
+        ap.refer(&mut modify_option.pomodoro_estimation).add_option(
+            &["-e", "--estimated"], StoreOption,
+            "New estimation of pomodori needed for the task");
+        ap.refer(&mut modify_option.kind).add_option(
+            &["-k", "--kind"], StoreOption,
+            "New type for the task");
+        parse_or_usage(&ap, ap.parse(args, &mut stdout(), &mut stderr()));
+    }
+    Command::TaskModify(Some((uuid_begin, modify_option)))
+}
+
 
 fn identify(args: Vec<String>) -> Option<String> {
     let mut uuid_begin = "".to_string();
@@ -113,6 +143,7 @@ pub fn parse() -> Command {
         Command::TaskNew(_) => new_task(args),
         Command::TaskDone(_) => Command::TaskDone(identify(args)),
         Command::TaskList(_) => list_task(args),
+        Command::TaskModify(_) => modify(args),
         _ => subcommand
     }
 }

@@ -15,8 +15,7 @@ use std::process;
 
 use pomorust::config;
 use pomorust::actions::{parse, Command, ListingOption};
-use pomorust::model::Context;
-use pomorust::model::Task;
+use pomorust::model::{Context, Task, TaskModification};
 use pomorust::utils;
 
 fn check_if_background_proc() -> bool {
@@ -40,9 +39,10 @@ fn main() {
         match parse() {
             Command::TaskNew(Some(t)) => { add_task(&mut context, t); },
             Command::TaskList(Some(o)) => { list_task(context, o); },
-            Command::TaskStart(Some(t)) => { utils::run_background_process(t); }
-            Command::TaskDone(Some(t)) => { mark_as_done(&mut context, t); }
-            Command::Status => { context.display_status(); }
+            Command::TaskStart(Some(t)) => { utils::run_background_process(t); },
+            Command::TaskDone(Some(t)) => { mark_as_done(&mut context, t); },
+            Command::Status => { context.display_status(); },
+            Command::TaskModify(Some((i, m))) => { modify_task(&mut context, i, m); },
             _ => panic!("Invalid command")
         }
     }
@@ -138,6 +138,15 @@ fn mark_as_done(context: &mut Context, identifier: String) {
         }
     } else {
         panic!("Could not identify task");
+    }
+    config::write_task_file(&context).unwrap();
+}
+
+fn modify_task(context: &mut Context, identifier: String,
+               modification: TaskModification) {
+    if context.is_valid_identifier(&identifier).is_ok() {
+        let task = context.get_task(&identifier);
+        task.modify(modification);
     }
     config::write_task_file(&context).unwrap();
 }
