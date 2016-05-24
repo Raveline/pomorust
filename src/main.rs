@@ -97,6 +97,7 @@ fn start_task(context: &mut Context, identifier: String) {
     after_pomodoro(&updated_context);
     updated_context.increment_pomodoro_count();
     updated_context.pause = true;
+    updated_context.timer = Some(chrono::Local::now());
     config::write_task_file(&updated_context).unwrap();
     if updated_context.should_be_long_pause() {
         pause(&updated_context, 30);
