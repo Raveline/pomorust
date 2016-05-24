@@ -96,16 +96,14 @@ fn start_task(context: &mut Context, identifier: String) {
     }
     after_pomodoro(&updated_context);
     updated_context.increment_pomodoro_count();
+    updated_context.pause = true;
     config::write_task_file(&updated_context).unwrap();
     if updated_context.should_be_long_pause() {
-        updated_context.pause = true;
         pause(&updated_context, 30);
-        updated_context.pause = false;
     } else {
-        updated_context.pause = true;
         pause(&updated_context, 5);
-        updated_context.pause = false;
     }
+    updated_context.pause = false;
     updated_context.timer = None;
     config::write_task_file(&updated_context).unwrap();
 }
