@@ -66,3 +66,11 @@ pub fn run_background_process(task_id: String) {
         .before_exec(|| { Ok(()) }).spawn().unwrap();
 		//.session_leader(true).spawn().unwrap();
 }
+
+pub fn str_to(str: &str, up_to: usize) -> String {
+    let mut max = up_to;
+    if max > str.len() - 1 {
+        max = str.len() - 1;
+    }
+    str[..max].to_string()
+}

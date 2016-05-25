@@ -1,6 +1,6 @@
 use uuid::Uuid;
 use chrono;
-use pomorust::utils::{MaybeLocalDate, parse_maybe_local_date, parse_maybe_string};
+use pomorust::utils::{MaybeLocalDate, parse_maybe_local_date, parse_maybe_string, str_to};
 
 
 #[derive(Debug)]
@@ -122,8 +122,9 @@ impl Task {
             },
             true => "!"
         };
-        format!("{0} {1: <38} {2:.<80} {3} / {4}",
-                ongoing_sign, self.uuid.to_string(), self.description,
+        format!("{0} {1: <38} {2:.<60}  {3: <15} {4} / {5}",
+                ongoing_sign, self.uuid.to_string(), str_to(&self.description, 60),
+                self.kind.as_ref().unwrap_or(&"".to_string()),
                 self.pomodori_count, self.pomodori_estimate)
     }
 
