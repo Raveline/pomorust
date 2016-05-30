@@ -57,7 +57,7 @@ fn add_task(context: &mut Context,  task: Task) {
 fn list_task(context: Context, opt: ListingOption) {
     let to_iterate = match opt.only_current {
         true => context.get_current_tasks(),
-        false => context.tasks.iter().collect()
+        false => context.get_all_tasks()
     };
     for t in to_iterate {
         println!("{}", t.to_list_line());
@@ -70,19 +70,26 @@ fn start_task(context: &mut Context, identifier: String) {
         println!("You are already doing a task ! Mark it as done if you're over before starting a new one.");
         process::exit(0);
     }
-
     if context.is_valid_identifier(&identifier).is_ok() {
-        let started_task = context.get_task(&identifier);
-        started_task.before_starting_pomodoro();
-        println!("Starting task : {}", started_task.to_string());
-        // Set flags and starting date...
-        started_task.before_starting_pomodoro();
+		before_pomodoro(context, &identifier);
     } else {
         panic!("Not a valid identifier !");
     }
-    // ... and save this state.
-    config::write_task_file(&context).unwrap();
+    config::write_task_file(context).unwrap();
+	do_pomodoro(identifier);
+}
 
+fn before_pomodoro(context: &mut Context, identifier: &str) {
+    {
+        let task = context.get_task(identifier);
+        task.before_starting_pomodoro();
+        println!("Starting task : {}", task.to_string());
+    }
+    // ... and save this state.
+    config::write_task_file(context).unwrap();
+}
+
+fn do_pomodoro(identifier: String) {
     // Only then, do the pomodoro itself.
     utils::wait_for(25);
 
@@ -94,7 +101,6 @@ fn start_task(context: &mut Context, identifier: String) {
         let mut worked_upon_task = updated_context.get_task(&identifier);
         worked_upon_task.after_doing_pomodoro();
     }
-    after_pomodoro(&updated_context);
     updated_context.increment_pomodoro_count();
     updated_context.pause = true;
     updated_context.timer = Some(chrono::Local::now());
@@ -109,11 +115,8 @@ fn start_task(context: &mut Context, identifier: String) {
     config::write_task_file(&updated_context).unwrap();
 }
 
-fn after_pomodoro(context: &Context) {
-    notify_according_to_context(&context, "Pomodoro done !", "Take a 5 minute break !");
-}
-
 fn pause(context: &Context, minutes: u16) {
+    notify_according_to_context(&context, "Pomodoro done !", &format!("Take a {} minute break !", minutes));
     utils::wait_for(minutes);
     notify_according_to_context(&context, "Break is over !", "Start a new task");
 }

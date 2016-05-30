@@ -267,6 +267,10 @@ impl Context {
         self.tasks.iter().filter(|&x| !x.is_finished()).collect::<Vec<&Task>>()
     }
 
+    pub fn get_all_tasks(&self) -> Vec<&Task> {
+        self.tasks.iter().collect::<Vec<&Task>>()
+    }
+
     fn get_ongoing_task(&self) -> Option<&Task> {
         self.tasks.iter().find(|&x| x.is_ongoing)
     }
